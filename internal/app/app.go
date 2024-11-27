@@ -23,11 +23,11 @@ func Run(ctx context.Context) error {
 
 	go func() {
 		<-ctx.Done()
-		slog.Info("shutting down serser")
+		slog.Info("shutting down serser!")
 		s.Shutdown(ctx)
 	}()
 
-	slog.Info("starting server", slog.String("addr", cfg.ServerAddr))
+	slog.Info("starting server!", slog.String("addr", cfg.ServerAddr))
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}

@@ -8,9 +8,20 @@ templ Base(props BaseProps) {
     <html>
         <head>
             <title>{ props.Title }</title>
+            <link rel="stylesheet" href="/assets/main.css"/>
         <body>
-        </body>
+        @header()
+        <div class="container mx-auto">
             { children... }
+        
+        </div>
+        </body>
         </head>
     </html>
+}
+
+templ header() {
+    <header class="navbar bg-primary text-primary-content">
+    <a href="/" class="btn btn-ghost text-xl">My app</a>
+    </header>
 }
