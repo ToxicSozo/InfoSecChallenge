@@ -7,12 +7,18 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type Dependencies struct {
+	AssetsFS http.FileSystem
+}
+
 type handlerfunc func(http.ResponseWriter, *http.Request) error
 
-func RegisterRoutes(r *chi.Mux) {
+func RegisterRoutes(r *chi.Mux, deps Dependencies) {
 	home := homeHandler{}
 
 	r.Get("/", handler(home.handleIndex))
+
+	r.Handle("/assets/*", http.StripPrefix("/assets", http.FileServer(deps.AssetsFS)))
 }
 
 func handler(h handlerfunc) http.HandlerFunc {
