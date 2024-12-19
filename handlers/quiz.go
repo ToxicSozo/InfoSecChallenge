@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"html/template"
-	"models"
 	"net/http"
+
+	"github.com/ToxicSozo/InfoSecChallenge/models"
 )
 
 func QuizHandler(w http.ResponseWriter, r *http.Request) {

@@ -1,19 +1,26 @@
 package db
 
 import (
-	"security-quiz/models"
+	"database/sql"
+	"log"
 
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	_ "github.com/lib/pq" // Драйвер PostgreSQL
 )
 
-var DB *gorm.DB
+var DB *sql.DB
 
-func InitDB() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+func InitDB(connStr string) {
+	var err error
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		panic("Не удалось подключиться к базе данных")
+		log.Fatal("Не удалось подключиться к базе данных:", err)
 	}
-	DB = db
-	db.AutoMigrate(&models.User{}, &models.Question{})
+
+	// Проверка соединения
+	err = DB.Ping()
+	if err != nil {
+		log.Fatal("Не удалось проверить соединение с базой данных:", err)
+	}
+
+	log.Println("Успешно подключено к базе данных")
 }
