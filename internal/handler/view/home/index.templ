@@ -1,0 +1,9 @@
+package home
+
+import "myapp/internal/handler/view/layout"
+
+templ Index() {
+    @layout.Base(layout.BaseProps{Title: "Main page"}) {
+        <h1>Hello, world</h1>
+    }
+}
