@@ -3,10 +3,11 @@ package app
 import (
 	"context"
 	"log/slog"
-	"myapp/internal/config"
-	"myapp/internal/handler"
+
 	"net/http"
 
+	"github.com/ToxicSozo/InfoSecChallenge/internal/config"
+	"github.com/ToxicSozo/InfoSecChallenge/internal/handler"
 	"github.com/go-chi/chi/v5"
 )
 

@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"log"
-	"myapp/internal/app"
 	"os"
 	"os/signal"
+
+	"github.com/ToxicSozo/InfoSecChallenge/internal/app"
 )
 
 func main() {

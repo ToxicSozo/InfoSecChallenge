@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"myapp/internal/handler/view/home"
 	"net/http"
+
+	"github.com/ToxicSozo/InfoSecChallenge/internal/handler/view/home"
 )
 
 type homeHandler struct{}
