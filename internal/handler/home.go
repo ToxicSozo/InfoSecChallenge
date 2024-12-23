@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/ToxicSozo/InfoSecChallenge/internal/handler/view/home"
+	"github.com/ToxicSozo/InfoSecChallenge/internal/view/home"
 )
 
 type homeHandler struct{}
