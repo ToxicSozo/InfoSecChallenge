@@ -1,11 +1,16 @@
-package home
+package layout
 
-templ Base() {
-    <html>
-        <head>
-        </head>
-        <body>
-            { children... }
-        </body>
-    </html>
+type BaseProps struct {
+	Title string
+}
+
+templ Base(props BaseProps) {
+	<html>
+		<head>
+			<title>{ props.Title }</title>
+		</head>
+		<body>
+			{ children... }
+		</body>
+	</html>
 }
