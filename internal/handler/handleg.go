@@ -19,7 +19,7 @@ type Dependencies struct {
 type handlerFunc func(http.ResponseWriter, *http.Request) error
 
 func RegisterRoutes(r *chi.Mux, deps Dependencies) {
-	home := homeHandler{}
+	home := homeHandler{db: deps.DB} // Передаем db в homeHandler
 
 	r.Get("/", handler(home.handleIndex))
 	r.Get("/about", AuthMiddleware(handler(home.handleAbout)))
@@ -36,6 +36,8 @@ func RegisterRoutes(r *chi.Mux, deps Dependencies) {
 	r.Post("/register", handler(RegisterHandler(deps.DB)))
 	r.Post("/login", handler(LoginHandler(deps.DB)))
 	r.Post("/logout", handler(LogoutHandler))
+	r.Post("/submit-flag", AuthMiddleware(handler(SubmitFlagHandler(deps.DB))))
+	r.Get("/get-score", AuthMiddleware(handler(home.handleGetScore)))
 }
 
 func handler(h handlerFunc) http.HandlerFunc {
@@ -129,4 +131,39 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) error {
 
 	http.Redirect(w, r, "/login", http.StatusFound)
 	return nil
+}
+
+func SubmitFlagHandler(db *sql.DB) handlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		err := r.ParseForm()
+		if err != nil {
+			return err
+		}
+
+		flag := r.FormValue("flag")
+		taskID := r.FormValue("task_id")
+		userID := r.Context().Value("user_id").(int)
+
+		// Проверка флага
+		var correctFlag string
+		err = db.QueryRow("SELECT flag FROM practice WHERE id = $1", taskID).Scan(&correctFlag)
+		if err != nil {
+			return err
+		}
+
+		if flag == correctFlag {
+			// Начисление баллов
+			err = models.UpdateUserScore(db, userID, 1, 10) // 10 баллов за правильный ответ
+			if err != nil {
+				return err
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Флаг верный! Баллы начислены."))
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Неверный флаг."))
+		}
+
+		return nil
+	}
 }

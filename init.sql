@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL UNIQUE
 );
 
-
 -- Создание таблицы types
 CREATE TABLE IF NOT EXISTS types (
     id SERIAL PRIMARY KEY,
@@ -46,3 +45,21 @@ CREATE TABLE IF NOT EXISTS results (
     completed_at TIMESTAMP DEFAULT NOW(),
     PRIMARY KEY (user_id, type)
 );
+
+-- Добавление начальных данных для таблицы types
+INSERT INTO types (type, objective) VALUES
+('Crypto', 'Задачи на криптографию'),
+('OSINT', 'Задачи на поиск информации в открытых источниках');
+
+-- Добавление начальных данных для таблицы practice (флаги)
+INSERT INTO practice (type, description, flag) VALUES
+(1, 'Никак не могу разглядеть', 'InfoSec_CTF{6l1nd_w0nt_s3e_th1s}'),
+(1, 'F1Z1K1 ОТДЫХАЮТ', 'InfoSec_CTF{flag2}'),
+(2, 'Тайна Гермеуса Моры', 'InfoSec_CTF{flag3}'),
+(2, 'Кто же он такой???', 'InfoSec_CTF{flag4}');
+
+-- Добавление начальных данных для таблицы theory (тестовые вопросы)
+INSERT INTO theory (type, description, correct_answer, answers) VALUES
+(1, 'Какой тип шифрования использует асимметричные ключи?', 'RSA', '["DNS Spoofing", "ARP Poisoning", "SQL Injection", "RSA"]'),
+(1, 'Какой из перечисленных методов является наиболее эффективным для защиты от атак типа "человек посередине" (Man-in-the-Middle)?', 'Использование VPN', '["Использование VPN", "Регулярное обновление антивируса", "Установка брандмауэра", "Отключение JavaScript в браузере"]'),
+(2, 'Какой из следующих стандартов регулирует управление информационной безопасностью в организации?', 'ISO 27001', '["ISO 27001", "PCI DSS", "GDPR", "HIPAA"]');

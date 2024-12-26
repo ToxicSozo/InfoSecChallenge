@@ -2,8 +2,8 @@ package home
 
 import "github.com/ToxicSozo/InfoSecChallenge/internal/view/layout"
 
-templ Test() {
-    @layout.Base(layout.BaseProps{Title: "Main page"}) {
+templ Test(score int) {
+    @layout.Base(layout.BaseProps{Title: "CTF"}) {
         <div class="container mx-auto p-4">
             <h1 class="text-3xl font-bold mb-6">Welcome to the InfoSec Challenge</h1>
 
@@ -11,7 +11,7 @@ templ Test() {
             <h2 class="text-2xl font-semibold mb-4">Crypto</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Task 1 -->
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 shadow-xl" data-task-id="1">
                     <div class="card-body">
                         <h3 class="card-title">Никак не могу разглядеть</h3>
                         <div class="collapse">
@@ -23,10 +23,11 @@ templ Test() {
                                 <p>Однажды мне понабилось написать базированное сообщение своему слепому другу. К сожалению, он не смог ничего разобрать... Я решил, что стоит попробовать написать ему иначе, но ответа так и не поступило... Может, вы сможете ему помочь?</p>
                                 <p>Формат флага: <code>InfoSec_CTF{`{}`}</code></p>
                                 <a href="/assets/crypto1.txt" download class="btn btn-primary mt-4">Скачать</a>
-                                <!-- Поле для ввода флага -->
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2">Отправить флаг</button>
+                                    <form class="flag-form">
+                                        <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
+                                        <button type="button" class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -34,7 +35,7 @@ templ Test() {
                 </div>
 
                 <!-- Task 2 -->
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 shadow-xl" data-task-id="2">
                     <div class="card-body">
                         <h3 class="card-title">F1Z1K1 ОТДЫХАЮТ</h3>
                         <div class="collapse">
@@ -48,7 +49,7 @@ templ Test() {
                                 <!-- Поле для ввода флага -->
                                 <div class="mt-4">
                                     <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2">Отправить флаг</button>
+                                    <button class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
                                 </div>
                             </div>
                         </div>
@@ -60,7 +61,7 @@ templ Test() {
             <h2 class="text-2xl font-semibold mt-8 mb-4">OSINT</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Task 1 -->
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 shadow-xl" data-task-id="3">
                     <div class="card-body">
                         <h3 class="card-title">Тайна Гермеуса Моры</h3>
                         <div class="collapse">
@@ -74,12 +75,12 @@ templ Test() {
                                 <ul>
                                     <li>Ищите меня там, где знания скрыты в тенях.</li>
                                     <li>Мой Telegram — это моё имя и число, но не ищите меня в кириллице.</li>
-                                    <li>Вдохновение ищите в песне, где я — главный герой123.</li>
+                                    <li>Вдохновление ищите в песне, где я — главный герой123.</li>
                                 </ul>
                                 <p>Формат флага: <code>InfoSec_CTF{`{}`}</code></p>
                                 <div class="mt-4">
                                     <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2">Отправить флаг</button>
+                                    <button class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +88,7 @@ templ Test() {
                 </div>
 
                 <!-- Task 2 -->
-                <div class="card bg-base-200 shadow-xl">
+                <div class="card bg-base-200 shadow-xl" data-task-id="4">
                     <div class="card-body">
                         <h3 class="card-title">Кто же он такой???</h3>
                         <div class="collapse">
@@ -99,7 +100,7 @@ templ Test() {
                                 <p>Описание: "Этот герой — мастер выживания в мире, где каждый день — это борьба древних меж собой. Он знает, что важно не только то, что ты можешь найти, но и то, как ты это используешь. Его дом — это руины древней цивилизации, где каждый камень хранит историю, а каждый кристалл — силу. Он избегает сильных, охотится на слабых и всегда знает, как извлечь выгоду из того, что другие считают бесполезным. Его имя начинается на 'М' и заканчивается на 'о', а его стиль жизни — это философия хитрости и находчивости.</p>
                                 <div class="mt-4">
                                     <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2">Отправить флаг</button>
+                                    <button class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
                                 </div>
                             </div>
                         </div>
@@ -228,6 +229,11 @@ templ Test() {
                     </form>
                 </div>
             </div>
+
+            <!-- Отображение баллов пользователя внизу страницы -->
+            <div class="mt-8 p-4 bg-base-200 rounded-lg">
+                <h2 class="text-2xl font-semibold">Ваши баллы: <span id="user-score" class="text-primary">@score</span></h2>
+            </div>
         </div>
 
         <!-- JavaScript для управления раскрытием задач -->
@@ -255,6 +261,58 @@ templ Test() {
             document.getElementById('quiz-form').addEventListener('submit', function (event) {
                 event.preventDefault();
                 alert('Ответы отправлены!');
+            });
+
+            // Обновление баллов
+            function updateScore() {
+                fetch("/get-score")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("user-score").textContent = data.score;
+                    })
+                    .catch(error => {
+                        console.error("Ошибка при обновлении баллов:", error);
+                    });
+            }
+
+            // Обновляем баллы при загрузке страницы
+            updateScore();
+
+            // Обновляем баллы после отправки флага
+            document.querySelectorAll(".flag-submit-button").forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const flagInput = button.closest(".flag-form").querySelector("input[type='text']");
+                    const flag = flagInput.value.trim();
+                    const taskID = button.closest(".card").dataset.taskId;
+
+                    if (flag === "") {
+                        alert("Пожалуйста, введите флаг.");
+                        return;
+                    }
+
+                    fetch("/submit-flag", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body: `flag=${encodeURIComponent(flag)}&task_id=${encodeURIComponent(taskID)}`,
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.text();
+                        } else {
+                            throw new Error("Неверный флаг.");
+                        }
+                    })
+                    .then(message => {
+                        alert(message);
+                        updateScore(); // Обновляем баллы после успешной отправки флага
+                    })
+                    .catch(error => {
+                        alert(error.message);
+                    });
+                });
             });
         </script>
     }
