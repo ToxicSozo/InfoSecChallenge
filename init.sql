@@ -5,12 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL UNIQUE
 );
 
--- Создание таблицы sessions
-CREATE TABLE IF NOT EXISTS sessions (
-    session_id TEXT PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    expires_at TIMESTAMP NOT NULL
-);
 
 -- Создание таблицы types
 CREATE TABLE IF NOT EXISTS types (

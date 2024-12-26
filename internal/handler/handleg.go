@@ -22,9 +22,8 @@ func RegisterRoutes(r *chi.Mux, deps Dependencies) {
 	home := homeHandler{}
 
 	r.Get("/", handler(home.handleIndex))
-	r.Get("/about", handler(home.handleAbout))
-	r.Get("/test", handler(home.handleTest))
-
+	r.Get("/about", AuthMiddleware(handler(home.handleAbout)))
+	r.Get("/test", AuthMiddleware(handler(home.handleTest)))
 	r.Handle("/assets/*", http.StripPrefix("/assets", http.FileServer(deps.AssetsFS)))
 
 	r.Get("/register", func(w http.ResponseWriter, r *http.Request) {
@@ -52,6 +51,18 @@ func handleError(w http.ResponseWriter, _ *http.Request, err error) {
 	http.Error(w, "Something went wrong", http.StatusInternalServerError)
 }
 
+func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session, _ := store.Get(r, "session-name")
+		_, ok := session.Values["user_id"]
+		if !ok {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+}
+
 func RegisterHandler(db *sql.DB) handlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		err := r.ParseForm()
@@ -71,8 +82,7 @@ func RegisterHandler(db *sql.DB) handlerFunc {
 			return err
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("User created successfully"))
+		http.Redirect(w, r, "/login", http.StatusFound)
 		return nil
 	}
 }
@@ -103,14 +113,20 @@ func LoginHandler(db *sql.DB) handlerFunc {
 			return nil
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Login successful"))
+		session, _ := store.Get(r, "session-name")
+		session.Values["user_id"] = user.ID
+		session.Save(r, w)
+
+		http.Redirect(w, r, "/", http.StatusFound)
 		return nil
 	}
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) error {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Logout successful"))
+	session, _ := store.Get(r, "session-name")
+	delete(session.Values, "user_id")
+	session.Save(r, w)
+
+	http.Redirect(w, r, "/login", http.StatusFound)
 	return nil
 }
