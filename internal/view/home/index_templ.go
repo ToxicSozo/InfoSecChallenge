@@ -43,13 +43,13 @@ func Index() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Hello, world!</h1>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex items-center justify-center min-h-screen\"><div class=\"text-center bg-white bg-opacity-80 p-8 rounded-lg\" style=\"margin-top: 250px;\"><h1 class=\"text-5xl font-bold text-white mb-4\">Тест по информационной безопасности</h1><p class=\"text-sky-400/0\">Проверьте свои знания в области информационной безопасности, пройдя наш тест.</p><a href=\"/test\" class=\"btn btn-primary\">Начать</a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Base(layout.BaseProps{Title: "Maing page"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Base(layout.BaseProps{Title: "Main page"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

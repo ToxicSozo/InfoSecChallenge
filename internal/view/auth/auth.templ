@@ -1,0 +1,55 @@
+package auth
+
+import "github.com/ToxicSozo/InfoSecChallenge/internal/view/layout"
+
+templ Register() {
+    @layout.Base(layout.BaseProps{Title: "Регистрация"}) {
+        <div class="flex items-center justify-center min-h-screen bg-gray-100">
+            <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Регистрация</h2>
+                <form method="POST" action="/register">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700">Имя пользователя</label>
+                        <input type="text" id="username" name="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required />
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                        <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required />
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Зарегистрироваться
+                    </button>
+                </form>
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    Уже есть аккаунт? <a href="/login" class="text-indigo-500 hover:underline">Войти</a>
+                </p>
+            </div>
+        </div>
+    }
+}
+
+templ Login() {
+    @layout.Base(layout.BaseProps{Title: "Вход"}) {
+        <div class="flex items-center justify-center min-h-screen bg-gray-100">
+            <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Вход</h2>
+                <form method="POST" action="/login">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700">Имя пользователя</label>
+                        <input type="text" id="username" name="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required />
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                        <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required />
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Войти
+                    </button>
+                </form>
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    Нет аккаунта? <a href="/register" class="text-indigo-500 hover:underline">Зарегистрироваться</a>
+                </p>
+            </div>
+        </div>
+    }
+}
