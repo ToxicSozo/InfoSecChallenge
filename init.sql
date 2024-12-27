@@ -32,9 +32,17 @@ CREATE TABLE IF NOT EXISTS practice (
 -- Создание таблицы user_answers
 CREATE TABLE IF NOT EXISTS user_answers (
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    theory_answers JSONB,
-    practice_answers JSONB,
-    PRIMARY KEY (user_id)
+    task_id INT,
+    is_correct BOOLEAN NOT NULL,
+    answered_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, task_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_test_answers (
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    test_id INT,
+    answered_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, test_id)
 );
 
 -- Создание таблицы для хранения итоговых результатов

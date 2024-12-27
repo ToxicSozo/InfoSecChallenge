@@ -3,11 +3,11 @@ version: '3.8'
 services:
   db:
     image: postgres:latest
-    container_name: app
+    container_name: postgres_db
     environment:
-      POSTGRES_USER: nebc
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: 1423
-      POSTGRES_DB: my_app
+      POSTGRES_DB: users
     ports:
       - "5432:5432"
     volumes:

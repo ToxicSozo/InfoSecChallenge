@@ -2,8 +2,10 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/ToxicSozo/InfoSecChallenge/internal/models"
 	"github.com/ToxicSozo/InfoSecChallenge/internal/view/auth"
@@ -17,6 +19,13 @@ type Dependencies struct {
 }
 
 type handlerFunc func(http.ResponseWriter, *http.Request) error
+
+var flags = map[string]string{
+	"1": "InfoSec_CTF{6l1nd_w0nt_s3e_th1s}",    // Флаг для задачи 1
+	"2": "InfoSec_CTF{Nfwq1aq_b03q_l0r_3v1qr}", // Флаг для задачи 2
+	"3": "InfoSec_CTF{HepBbl_He_u3_CTaJlu}",    // Флаг для задачи 3
+	"4": "InfoSec_CTF{Meepo_Dota_2}",           // Флаг для задачи 4
+}
 
 func RegisterRoutes(r *chi.Mux, deps Dependencies) {
 	home := homeHandler{db: deps.DB} // Передаем db в homeHandler
@@ -37,7 +46,7 @@ func RegisterRoutes(r *chi.Mux, deps Dependencies) {
 	r.Post("/login", handler(LoginHandler(deps.DB)))
 	r.Post("/logout", handler(LogoutHandler))
 	r.Post("/submit-flag", AuthMiddleware(handler(SubmitFlagHandler(deps.DB))))
-	r.Get("/get-score", AuthMiddleware(handler(home.handleGetScore)))
+	r.Get("/get-score", AuthMiddleware(handler(GetUserScoreHandler(deps.DB))))
 }
 
 func handler(h handlerFunc) http.HandlerFunc {
@@ -135,35 +144,85 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) error {
 
 func SubmitFlagHandler(db *sql.DB) handlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		err := r.ParseForm()
+		session, _ := store.Get(r, "session-name")
+		userID, ok := session.Values["user_id"].(int)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return nil
+		}
+
+		taskIDStr := r.FormValue("task_id")
+		flag := r.FormValue("flag")
+
+		if taskIDStr == "" || flag == "" {
+			http.Error(w, "Task ID and flag are required", http.StatusBadRequest)
+			return nil
+		}
+
+		taskID, err := strconv.Atoi(taskIDStr)
 		if err != nil {
 			return err
 		}
 
-		flag := r.FormValue("flag")
-		taskID := r.FormValue("task_id")
-		userID := r.Context().Value("user_id").(int)
-
-		// Проверка флага
-		var correctFlag string
-		err = db.QueryRow("SELECT flag FROM practice WHERE id = $1", taskID).Scan(&correctFlag)
+		hasCorrect, err := models.HasCorrectAnswer(db, userID, taskID)
 		if err != nil {
 			return err
+		}
+		if hasCorrect {
+			w.Write([]byte("Вы уже решили эту задачу."))
+			return nil
+		}
+
+		correctFlag, exists := flags[taskIDStr]
+		if !exists {
+			http.Error(w, "Task not found", http.StatusNotFound)
+			return nil
 		}
 
 		if flag == correctFlag {
-			// Начисление баллов
-			err = models.UpdateUserScore(db, userID, 1, 10) // 10 баллов за правильный ответ
+			err := models.UpdateUserScore(db, userID, 1, 10) // 10 баллов за правильный флаг
 			if err != nil {
 				return err
 			}
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("Флаг верный! Баллы начислены."))
+
+			err = models.AddUserAnswer(db, userID, taskID, true)
+			if err != nil {
+				return err
+			}
+
+			w.Write([]byte("Флаг правильный! Баллы добавлены."))
 		} else {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Неверный флаг."))
+			err = models.AddUserAnswer(db, userID, taskID, false)
+			if err != nil {
+				return err
+			}
+
+			w.Write([]byte("Флаг неправильный."))
 		}
 
+		return nil
+	}
+}
+
+func GetUserScoreHandler(db *sql.DB) handlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		session, _ := store.Get(r, "session-name")
+		userID, ok := session.Values["user_id"].(int)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return nil
+		}
+
+		// Получение счета из базы данных
+		score, err := models.GetUserScore(db, userID)
+		if err != nil {
+			return err
+		}
+
+		// Возврат счета в формате JSON
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(fmt.Sprintf(`{"score": %d}`, score)))
 		return nil
 	}
 }

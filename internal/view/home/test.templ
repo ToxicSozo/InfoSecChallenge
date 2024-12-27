@@ -2,7 +2,7 @@ package home
 
 import "github.com/ToxicSozo/InfoSecChallenge/internal/view/layout"
 
-templ Test(score int) {
+templ Test() {
     @layout.Base(layout.BaseProps{Title: "CTF"}) {
         <div class="container mx-auto p-4">
             <h1 class="text-3xl font-bold mb-6">Welcome to the InfoSec Challenge</h1>
@@ -24,7 +24,7 @@ templ Test(score int) {
                                 <p>Формат флага: <code>InfoSec_CTF{`{}`}</code></p>
                                 <a href="/assets/crypto1.txt" download class="btn btn-primary mt-4">Скачать</a>
                                 <div class="mt-4">
-                                    <form class="flag-form">
+                                    <form class="flag-form" data-task-id="1">
                                         <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
                                         <button type="button" class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
                                     </form>
@@ -48,8 +48,10 @@ templ Test(score int) {
                                 <a href="/assets/crypto2.py" download class="btn btn-primary mt-4">Скачать</a>
                                 <!-- Поле для ввода флага -->
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    <form class="flag-form" data-task-id="2">
+                                        <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
+                                        <button type="button" class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -79,8 +81,10 @@ templ Test(score int) {
                                 </ul>
                                 <p>Формат флага: <code>InfoSec_CTF{`{}`}</code></p>
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    <form class="flag-form" data-task-id="3">
+                                        <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
+                                        <button type="button" class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -99,8 +103,10 @@ templ Test(score int) {
                             <div class="collapse-content">
                                 <p>Описание: "Этот герой — мастер выживания в мире, где каждый день — это борьба древних меж собой. Он знает, что важно не только то, что ты можешь найти, но и то, как ты это используешь. Его дом — это руины древней цивилизации, где каждый камень хранит историю, а каждый кристалл — силу. Он избегает сильных, охотится на слабых и всегда знает, как извлечь выгоду из того, что другие считают бесполезным. Его имя начинается на 'М' и заканчивается на 'о', а его стиль жизни — это философия хитрости и находчивости.</p>
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
-                                    <button class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    <form class="flag-form" data-task-id="4">
+                                        <input type="text" placeholder="Enter flag" class="input input-bordered w-full max-w-xs" />
+                                        <button type="button" class="btn btn-secondary mt-2 flag-submit-button">Отправить флаг</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -205,7 +211,6 @@ templ Test(score int) {
                             </div>
                         </div>
 
-                        <!-- Question 5 -->
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold mb-2">5. Какой из перечисленных методов является примером социальной инженерии?</h3>
                             <div class="space-y-2">
@@ -224,96 +229,88 @@ templ Test(score int) {
                             </div>
                         </div>
 
-                        <!-- Submit Button -->
                         <button type="submit" class="btn btn-primary mt-4">Отправить ответы</button>
                     </form>
                 </div>
             </div>
 
-            <!-- Отображение баллов пользователя внизу страницы -->
-            <div class="mt-8 p-4 bg-base-200 rounded-lg">
-                <h2 class="text-2xl font-semibold">Ваши баллы: <span id="user-score" class="text-primary">@score</span></h2>
+            <!-- Счетчик внизу страницы -->
+            <div class="card bg-base-200 shadow-xl mt-8">
+                <div class="card-body">
+                    <h2 class="text-xl font-bold mb-2">Ваш балл</h2>
+                    <p class="text-lg" id="score-value">Loading...</p>
+                </div>
             </div>
         </div>
 
-        <!-- JavaScript для управления раскрытием задач -->
         <script>
-            document.addEventListener("click", function (event) {
-                const tasks = document.querySelectorAll(".collapse input[type='checkbox']");
-                const clickedElement = event.target;
-
-                // Проверяем, был ли клик вне области задачи
-                let isClickInsideTask = false;
-                tasks.forEach(task => {
-                    if (task.parentElement.contains(clickedElement)) {
-                        isClickInsideTask = true;
-                    }
-                });
-
-                // Если клик был вне задачи, закрываем все задачи
-                if (!isClickInsideTask) {
-                    tasks.forEach(task => {
-                        task.checked = false;
-                    });
-                }
-            });
-
-            document.getElementById('quiz-form').addEventListener('submit', function (event) {
-                event.preventDefault();
-                alert('Ответы отправлены!');
-            });
-
-            // Обновление баллов
-            function updateScore() {
+            // Функция для получения и отображения счета
+            function fetchScore() {
                 fetch("/get-score")
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        document.getElementById("user-score").textContent = data.score;
+                        // Обновление счетчика на странице
+                        document.getElementById("score-value").textContent = data.score;
                     })
                     .catch(error => {
-                        console.error("Ошибка при обновлении баллов:", error);
+                        console.error("Error fetching score:", error);
+                        document.getElementById("score-value").textContent = "Error loading score";
                     });
             }
 
-            // Обновляем баллы при загрузке страницы
-            updateScore();
+            // Функция для отправки флага
+            function submitFlag(taskID, flag) {
+                fetch("/submit-flag", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `task_id=${taskID}&flag=${encodeURIComponent(flag)}`,
+                })
+                .then(response => response.text())
+                .then(message => {
+                    alert(message);
+                    fetchScore(); // Обновление счета после отправки флага
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            }
 
-            // Обновляем баллы после отправки флага
-            document.querySelectorAll(".flag-submit-button").forEach(button => {
-                button.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    const flagInput = button.closest(".flag-form").querySelector("input[type='text']");
-                    const flag = flagInput.value.trim();
-                    const taskID = button.closest(".card").dataset.taskId;
+            // Обработка отправки флага по нажатию кнопки или Enter
+            document.querySelectorAll(".flag-form").forEach(form => {
+                const input = form.querySelector("input");
+                const button = form.querySelector("button");
 
-                    if (flag === "") {
-                        alert("Пожалуйста, введите флаг.");
-                        return;
+                // Отправка по нажатию кнопки
+                button.addEventListener("click", () => {
+                    const taskID = form.getAttribute("data-task-id");
+                    const flag = input.value;
+                    if (flag) {
+                        submitFlag(taskID, flag);
                     }
+                });
 
-                    fetch("/submit-flag", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                        },
-                        body: `flag=${encodeURIComponent(flag)}&task_id=${encodeURIComponent(taskID)}`,
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.text();
-                        } else {
-                            throw new Error("Неверный флаг.");
+                // Отправка по нажатию Enter
+                input.addEventListener("keypress", (event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        const taskID = form.getAttribute("data-task-id");
+                        const flag = input.value;
+                        if (flag) {
+                            submitFlag(taskID, flag);
                         }
-                    })
-                    .then(message => {
-                        alert(message);
-                        updateScore(); // Обновляем баллы после успешной отправки флага
-                    })
-                    .catch(error => {
-                        alert(error.message);
-                    });
+                    }
                 });
             });
+
+            // Получение счета при загрузке страницы
+            document.addEventListener("DOMContentLoaded", fetchScore);
         </script>
     }
 }

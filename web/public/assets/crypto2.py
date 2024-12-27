@@ -15,7 +15,7 @@ def block_permutation_decipher(shifted_text, block_size):
     return result
 
 
-shifted_text = "ywhbOD{1ydq1gmv30r_gh0b_gg1l3_}h"
+shifted_text = "1ektB0p_eo0z_e31j3_ffe"
 shift = int(input("Введите количество слов из истории: "))
 block_size = 5
 decoded_text = caesar_cipher_decoder(shifted_text, -shift)
