@@ -11,6 +11,7 @@ import (
 	"github.com/ToxicSozo/InfoSecChallenge/internal/models"
 	"github.com/ToxicSozo/InfoSecChallenge/internal/view/auth"
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -34,6 +35,19 @@ var flags = map[string]string{
 	"2": "InfoSec_CTF{Nfwq1aq_b03q_l0r_3v1qr}",
 	"3": "InfoSec_CTF{HepBbl_He_u3_CTaJlu}",
 	"4": "InfoSec_CTF{Meepo_Dota_2}",
+}
+
+// Инициализация хранилища сессий
+var store = sessions.NewCookieStore([]byte("your-secret-key"))
+
+func init() {
+	// Настройка параметров куки
+	store.Options = &sessions.Options{
+		Path:     "/",       // Куки доступны для всех путей
+		MaxAge:   86400 * 7, // Время жизни куки (7 дней)
+		HttpOnly: true,      // Куки доступны только через HTTP (не через JavaScript)
+		Secure:   false,     // Установите true, если используете HTTPS
+	}
 }
 
 func RegisterRoutes(r *chi.Mux, deps Dependencies) {
@@ -136,7 +150,10 @@ func LoginHandler(db *sql.DB) handlerFunc {
 
 		session, _ := store.Get(r, "session-name")
 		session.Values["user_id"] = user.ID
-		session.Save(r, w)
+		if err := session.Save(r, w); err != nil {
+			slog.Error("Ошибка при сохранении сессии", slog.String("err", err.Error()))
+			return err
+		}
 
 		http.Redirect(w, r, "/", http.StatusFound)
 		return nil
@@ -146,7 +163,10 @@ func LoginHandler(db *sql.DB) handlerFunc {
 func LogoutHandler(w http.ResponseWriter, r *http.Request) error {
 	session, _ := store.Get(r, "session-name")
 	delete(session.Values, "user_id")
-	session.Save(r, w)
+	if err := session.Save(r, w); err != nil {
+		slog.Error("Ошибка при сохранении сессии", slog.String("err", err.Error()))
+		return err
+	}
 
 	http.Redirect(w, r, "/login", http.StatusFound)
 	return nil
