@@ -11,6 +11,7 @@ type User struct {
 	ID       int
 	Username string
 	Password string
+	Score    int
 }
 
 func CreateUser(db *sql.DB, username, password string) error {
@@ -117,4 +118,32 @@ func AddUserTestAnswer(db *sql.DB, userID, testID int) error {
 		return fmt.Errorf("failed to add user test answer: %w", err)
 	}
 	return nil
+}
+
+func GetLeaderboard(db *sql.DB) ([]User, error) {
+	query := `
+		SELECT u.id, u.username, COALESCE(SUM(r.score), 0) as score
+		FROM users u
+		LEFT JOIN results r ON u.id = r.user_id
+		GROUP BY u.id
+		ORDER BY score DESC
+	`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get leaderboard: %w", err)
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		var score int
+		if err := rows.Scan(&user.ID, &user.Username, &score); err != nil {
+			return nil, fmt.Errorf("failed to scan user: %w", err)
+		}
+		user.Score = score
+		users = append(users, user)
+	}
+
+	return users, nil
 }

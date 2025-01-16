@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"text/template"
 
 	"github.com/ToxicSozo/InfoSecChallenge/internal/models"
 	"github.com/ToxicSozo/InfoSecChallenge/internal/view/auth"
@@ -20,11 +21,19 @@ type Dependencies struct {
 
 type handlerFunc func(http.ResponseWriter, *http.Request) error
 
+var funcMap = template.FuncMap{
+	"add": func(a, b int) int {
+		return a + b
+	},
+}
+
+var leaderboardTemplate = template.Must(template.New("leaderboard.html").Funcs(funcMap).ParseFiles("internal/view/leaderboard/leaderboard.html"))
+
 var flags = map[string]string{
-	"1": "InfoSec_CTF{6l1nd_w0nt_s3e_th1s}",    // Флаг для задачи 1
-	"2": "InfoSec_CTF{Nfwq1aq_b03q_l0r_3v1qr}", // Флаг для задачи 2
-	"3": "InfoSec_CTF{HepBbl_He_u3_CTaJlu}",    // Флаг для задачи 3
-	"4": "InfoSec_CTF{Meepo_Dota_2}",           // Флаг для задачи 4
+	"1": "InfoSec_CTF{6l1nd_w0nt_s3e_th1s}",
+	"2": "InfoSec_CTF{Nfwq1aq_b03q_l0r_3v1qr}",
+	"3": "InfoSec_CTF{HepBbl_He_u3_CTaJlu}",
+	"4": "InfoSec_CTF{Meepo_Dota_2}",
 }
 
 func RegisterRoutes(r *chi.Mux, deps Dependencies) {
@@ -47,6 +56,7 @@ func RegisterRoutes(r *chi.Mux, deps Dependencies) {
 	r.Post("/logout", handler(LogoutHandler))
 	r.Post("/submit-flag", AuthMiddleware(handler(SubmitFlagHandler(deps.DB))))
 	r.Get("/get-score", AuthMiddleware(handler(GetUserScoreHandler(deps.DB))))
+	r.Get("/leaderboard", LeaderboardHandler(deps.DB))
 }
 
 func handler(h handlerFunc) http.HandlerFunc {
@@ -224,5 +234,26 @@ func GetUserScoreHandler(db *sql.DB) handlerFunc {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(fmt.Sprintf(`{"score": %d}`, score)))
 		return nil
+	}
+}
+
+func LeaderboardHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		users, err := models.GetLeaderboard(db)
+		if err != nil {
+			http.Error(w, "Failed to fetch leaderboard", http.StatusInternalServerError)
+			return
+		}
+
+		data := struct {
+			Users []models.User
+		}{
+			Users: users,
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		if err := leaderboardTemplate.Execute(w, data); err != nil {
+			http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		}
 	}
 }
